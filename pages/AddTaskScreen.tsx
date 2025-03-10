@@ -1,8 +1,17 @@
-// screens/AddTaskScreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Picker, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList, Task } from '../App';
 
-const AddTaskScreen = ({ navigation, addTask }) => {
+type AddTaskScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AddTask'>;
+
+type Props = {
+  navigation: AddTaskScreenNavigationProp;
+  addTask: (task: Task) => void;
+};
+
+const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Osebno');
@@ -11,11 +20,11 @@ const AddTaskScreen = ({ navigation, addTask }) => {
 
   const handleAddTask = () => {
     if (!name || !deadline) {
-      alert('Prosimo, izpolnite obvezna polja (ime in rok opravila).');
+      Alert.alert('Prosimo, izpolnite obvezna polja (ime in rok opravila).');
       return;
     }
 
-    const newTask = {
+    const newTask: Task = {
       name,
       description,
       category,

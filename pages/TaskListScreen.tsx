@@ -1,9 +1,17 @@
-// screens/TaskListScreen.js
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Button, StyleSheet } from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList, Task } from '../App';
 
-const TaskListScreen = ({ navigation, tasks }) => {
-  const renderItem = ({ item }) => (
+type TaskListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TaskList'>;
+
+type Props = {
+  navigation: TaskListScreenNavigationProp;
+  tasks: Task[];
+};
+
+const TaskListScreen: React.FC<Props> = ({ navigation, tasks }) => {
+  const renderItem = ({ item }: { item: Task }) => (
     <TouchableOpacity
       style={styles.taskItem}
       onPress={() => navigation.navigate('TaskDetails', { task: item })}

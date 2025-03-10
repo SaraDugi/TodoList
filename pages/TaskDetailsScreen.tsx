@@ -1,8 +1,15 @@
-// screens/TaskDetailsScreen.js
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from '../App';
 
-const TaskDetailsScreen = ({ route }) => {
+type TaskDetailsScreenRouteProp = RouteProp<RootStackParamList, 'TaskDetails'>;
+
+type Props = {
+  route: TaskDetailsScreenRouteProp;
+};
+
+const TaskDetailsScreen: React.FC<Props> = ({ route }) => {
   const { task } = route.params;
 
   return (
