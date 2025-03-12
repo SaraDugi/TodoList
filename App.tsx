@@ -31,20 +31,20 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="TaskList">
-        <Stack.Screen name="TaskList">
-          {(props) => <TaskListScreen {...props} tasks={tasks} />}
-        </Stack.Screen>
-        <Stack.Screen
-          name="TaskDetails"
-          component={TaskDetailsScreen}
-          options={{ title: 'Podrobnosti opravila' }}
-        />
-        <Stack.Screen name="AddTask">
-          {(props) => <AddTaskScreen {...props} addTask={addTask} />}
-        </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator id={undefined} initialRouteName="TaskList">
+      <Stack.Screen name="TaskList">
+        {(props) => <TaskListScreen {...props} tasks={tasks} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="TaskDetails"
+        component={TaskDetailsScreen}
+        options={{ title: 'Podrobnosti opravila' }}
+      />
+      <Stack.Screen name="AddTask">
+        {(props) => <AddTaskScreen {...props} addTask={addTask} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  </NavigationContainer>
   );
 }
 
