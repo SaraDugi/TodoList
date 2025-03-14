@@ -1,3 +1,4 @@
+// pages/TaskDetailsScreen.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
@@ -32,6 +33,8 @@ const TaskDetailsScreen: React.FC<Props> = ({ route }) => {
   );
 };
 
+export default TaskDetailsScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -46,5 +49,3 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
-
-export default TaskDetailsScreen;

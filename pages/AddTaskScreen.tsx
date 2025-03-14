@@ -1,3 +1,4 @@
+// pages/AddTaskScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -87,6 +88,8 @@ const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
   );
 };
 
+export default AddTaskScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -104,5 +107,3 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 });
-
-export default AddTaskScreen;
