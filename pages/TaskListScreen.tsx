@@ -1,4 +1,3 @@
-// pages/TaskListScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -8,11 +7,8 @@ import {
   Button,
   StyleSheet,
   Modal,
-  Alert,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, Task } from '../App';
 
@@ -35,16 +31,6 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
     }
     setModalVisible(false);
     setSelectedTaskIndex(null);
-  };
-
-  // Logout button
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigation.replace('Login');
-    } catch (error: any) {
-      Alert.alert('Napaka pri odjavi', error.message);
-    }
   };
 
   // Render each task in the list
@@ -77,8 +63,6 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
 
   return (
     <View style={styles.container}>
-      <Button title="Odjava" onPress={handleLogout} />
-
       <FlatList
         data={tasks}
         keyExtractor={(item, index) => index.toString()}
