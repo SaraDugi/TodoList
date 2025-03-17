@@ -1,8 +1,9 @@
+// pages/LoginScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,25 +17,9 @@ const LoginScreen = ({ navigation }) => {
     try {
       setLoading(true);
       await auth().signInWithEmailAndPassword(email, password);
-    } catch (error) {
+      // Po uspešni prijavi, bo onAuthStateChanged v App.tsx poskrbel za preklop na glavni zaslon
+    } catch (error: any) {
       Alert.alert("Prijava ni uspela", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUpWithEmail = async () => {
-    if (!email || !password) {
-      Alert.alert("Napaka", "Prosimo, vnesite e-pošto in geslo.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await auth().createUserWithEmailAndPassword(email, password);
-      Alert.alert("Registracija uspešna", "Sedaj se lahko prijavite.");
-    } catch (error) {
-      Alert.alert("Registracija ni uspela", error.message);
     } finally {
       setLoading(false);
     }
@@ -64,10 +49,7 @@ const LoginScreen = ({ navigation }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <>
-          <Button title="Prijava" onPress={signInWithEmail} />
-          <Button title="Registracija" onPress={signUpWithEmail} />
-        </>
+        <Button title="Prijava" onPress={signInWithEmail} />
       )}
     </View>
   );

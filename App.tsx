@@ -1,153 +1,159 @@
+// App.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator, TextInput, Alert } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
+import LoginScreen from './pages/LoginScreen';
 import TaskListScreen from './pages/TaskListScreen';
 import TaskDetailsScreen from './pages/TaskDetailsScreen';
 import AddTaskScreen from './pages/AddTaskScreen';
 
-const Stack = createStackNavigator();
-
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
-  TaskList: undefined;
   TaskDetails: { task: Task };
   AddTask: undefined;
 };
 
 export type Task = {
+  id?: string;
   name: string;
   description: string;
   category: string;
   deadline: string;
   reminderDate?: string;
+  userId?: string;
 };
 
-const LoginScreen = ({ navigation }: { navigation: StackNavigationProp<RootStackParamList, 'Login'> }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const signInWithEmail = async () => {
-    if (!email || !password) {
-      Alert.alert("Napaka", "Prosimo, vnesite e-pošto in geslo.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await auth().signInWithEmailAndPassword(email, password);
-    } catch (error) {
-      Alert.alert("Prijava ni uspela", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUpWithEmail = async () => {
-    if (!email || !password) {
-      Alert.alert("Napaka", "Prosimo, vnesite e-pošto in geslo.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await auth().createUserWithEmailAndPassword(email, password);
-      Alert.alert("Registracija uspešna", "Sedaj se lahko prijavite.");
-    } catch (error) {
-      Alert.alert("Registracija ni uspela", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Prijava</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="E-pošta"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Geslo"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <>
-          <Button title="Prijava" onPress={signInWithEmail} />
-          <Button title="Registracija" onPress={signUpWithEmail} />
-        </>
-      )}
-    </View>
-  );
-};
-
-const HomeScreen = ({ navigation, tasks, deleteTask }: { navigation: StackNavigationProp<RootStackParamList, 'Home'>; tasks: Task[]; deleteTask: (index: number) => void }) => {
-  return (
-    <View style={styles.container}>
-      <Button title="Odjava" onPress={() => auth().signOut()} />
-      <TaskListScreen navigation={navigation as unknown as StackNavigationProp<RootStackParamList, 'TaskList'>} tasks={tasks} deleteTask={deleteTask} />
-    </View>
-  );
-};
+const Stack = createStackNavigator<RootStackParamList>();
 
 const App = () => {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
 
+  // Listen for authentication state changes
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribeAuth = auth().onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
       setLoading(false);
     });
-    return unsubscribe;
+
+    // Cleanup when unmounting
+    return unsubscribeAuth;
   }, []);
 
-  const addTask = (task: Task) => {
-    setTasks((prevTasks) => [...prevTasks, task]);
+  // Listen for changes to the user's tasks in Firestore
+  useEffect(() => {
+    let unsubscribeTasks: () => void = () => {};
+
+    if (user) {
+      unsubscribeTasks = firestore()
+        .collection('tasks')
+        .where('userId', '==', user.uid)
+        .onSnapshot(
+          // Success callback
+          (querySnapshot) => {
+            // Defensive check
+            if (!querySnapshot) {
+              setTasks([]);
+              return;
+            }
+
+            const userTasks: Task[] = [];
+            querySnapshot.forEach((doc) => {
+              userTasks.push({
+                id: doc.id,
+                ...(doc.data() as Task),
+              });
+            });
+            setTasks(userTasks);
+          },
+          // Error callback (e.g., permission errors, network issues)
+          (error) => {
+            console.error('Error fetching tasks:', error);
+            setTasks([]);
+          }
+        );
+    } else {
+      // If user is logged out, clear tasks
+      setTasks([]);
+    }
+
+    // Cleanup subscription when user changes or component unmounts
+    return unsubscribeTasks;
+  }, [user]);
+
+  // Function to add a task to Firestore
+  const addTask = async (task: Task) => {
+    if (!user) return;
+    try {
+      await firestore().collection('tasks').add({
+        ...task,
+        userId: user.uid,
+      });
+    } catch (error) {
+      console.log('Error adding task:', error);
+    }
   };
 
-  const deleteTask = (index: number) => {
-    setTasks((prevTasks) => prevTasks.filter((_, i) => i !== index));
+  // Function to delete a task from Firestore
+  const deleteTask = async (taskId: string) => {
+    try {
+      await firestore().collection('tasks').doc(taskId).delete();
+    } catch (error) {
+      console.log('Error deleting task:', error);
+    }
   };
 
+  // Show loading indicator while checking auth state
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1 }} />;
+    return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
+      <Stack.Navigator id={undefined}>
         {user ? (
-          <Stack.Screen name="Home">
-            {(props) => <HomeScreen {...props} tasks={tasks} deleteTask={deleteTask} />}
-          </Stack.Screen>
+          // Authenticated routes
+          <>
+            <Stack.Screen name="Home" options={{ headerShown: false }}>
+              {(props) => (
+                <TaskListScreen
+                  {...props}
+                  tasks={tasks}
+                  deleteTask={(index: number) => {
+                    const taskToDelete = tasks[index];
+                    if (taskToDelete?.id) {
+                      deleteTask(taskToDelete.id);
+                    }
+                  }}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="TaskDetails"
+              component={TaskDetailsScreen}
+              options={{ headerShown: true, title: 'Task Details' }}
+            />
+            <Stack.Screen
+              name="AddTask"
+              options={{ headerShown: true, title: 'Add Task' }}
+            >
+              {(props) => <AddTaskScreen {...props} addTask={addTask} />}
+            </Stack.Screen>
+          </>
         ) : (
-          <Stack.Screen name="Login" component={LoginScreen} />
+          // Unauthenticated route
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
         )}
-        <Stack.Screen name="TaskList">
-          {(props) => <TaskListScreen {...props} tasks={tasks} deleteTask={deleteTask} />}
-        </Stack.Screen>
-        <Stack.Screen name="TaskDetails" component={TaskDetailsScreen} options={{ headerShown: true, title: 'Podrobnosti opravila' }} />
-        <Stack.Screen name="AddTask">
-          {(props) => <AddTaskScreen {...props} addTask={addTask} />}
-        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -156,23 +162,8 @@ const App = () => {
 export default App;
 
 const styles = StyleSheet.create({
-  container: {
+  loading: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  input: {
-    width: '80%',
-    borderWidth: 1,
-    borderColor: '#aaa',
-    padding: 8,
-    marginTop: 10,
-    borderRadius: 4,
   },
 });

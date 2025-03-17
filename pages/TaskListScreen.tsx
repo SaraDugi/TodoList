@@ -1,3 +1,5 @@
+// pages/TaskListScreen.tsx
+
 import React, { useState } from 'react';
 import {
   View,
@@ -9,10 +11,15 @@ import {
   Modal,
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth';
 import { StackNavigationProp } from '@react-navigation/stack';
+
 import { RootStackParamList, Task } from '../App';
 
-type TaskListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TaskList'>;
+type TaskListScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Home'
+>;
 
 type Props = {
   navigation: TaskListScreenNavigationProp;
@@ -24,7 +31,9 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskIndex, setSelectedTaskIndex] = useState<number | null>(null);
 
-  // Confirm deletion after swipe
+  /**
+   * Confirms the deletion of the selected task.
+   */
   const handleDeleteConfirm = () => {
     if (selectedTaskIndex !== null) {
       deleteTask(selectedTaskIndex);
@@ -33,9 +42,13 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
     setSelectedTaskIndex(null);
   };
 
-  // Render each task in the list
+  /**
+   * Renders each task item in the FlatList.
+   */
   const renderItem = ({ item, index }: { item: Task; index: number }) => {
-    // This is the view that appears when swiping left
+    /**
+     * Swipeable right action component.
+     */
     const renderRightActions = () => (
       <View style={styles.deleteAction}>
         <Text style={styles.deleteText}>Izbriši</Text>
@@ -63,16 +76,21 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
 
   return (
     <View style={styles.container}>
+      {/* Sign Out Button */}
+      <Button title="Odjava" onPress={() => auth().signOut()} />
+
+      {/* List of Tasks */}
       <FlatList
         data={tasks}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.id ?? index.toString()}
         renderItem={renderItem}
         ListEmptyComponent={<Text>Ni vnesenih opravil.</Text>}
       />
 
+      {/* Add Task Button */}
       <Button title="Dodaj opravilo" onPress={() => navigation.navigate('AddTask')} />
 
-      {/* Confirmation modal for deleting a task */}
+      {/* Delete Confirmation Modal */}
       <Modal
         transparent
         visible={modalVisible}
