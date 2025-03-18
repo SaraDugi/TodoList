@@ -32,10 +32,7 @@ const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
       reminderDate,
     };
 
-    // Call the addTask prop function, which is passed from App.tsx
     addTask(newTask);
-
-    // Go back to the previous screen
     navigation.goBack();
   };
 

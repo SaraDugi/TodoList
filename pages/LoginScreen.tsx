@@ -1,6 +1,5 @@
-// pages/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const LoginScreen = () => {
@@ -17,7 +16,6 @@ const LoginScreen = () => {
     try {
       setLoading(true);
       await auth().signInWithEmailAndPassword(email, password);
-      // Po uspešni prijavi, bo onAuthStateChanged v App.tsx poskrbel za preklop na glavni zaslon
     } catch (error: any) {
       Alert.alert("Prijava ni uspela", error.message);
     } finally {
@@ -27,30 +25,36 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Prijava</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="E-pošta"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Geslo"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Prijava</Text>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="E-pošta"
+          placeholderTextColor="#888"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Geslo"
+          placeholderTextColor="#888"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <Button title="Prijava" onPress={signInWithEmail} />
-      )}
+        {loading ? (
+          <ActivityIndicator size="large" color="#fff" />
+        ) : (
+          <TouchableOpacity style={styles.button} onPress={signInWithEmail}>
+            <Text style={styles.buttonText}>Prijava</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -60,21 +64,49 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1E90FF', // Modro ozadje
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
+  formContainer: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: 24,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 28,
+    fontWeight: '600',
+    marginBottom: 24,
+    textAlign: 'center',
+    color: '#333',
   },
   input: {
-    width: '80%',
+    width: '100%',
+    height: 50,
     borderWidth: 1,
-    borderColor: '#aaa',
-    padding: 8,
-    marginTop: 10,
-    borderRadius: 4,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    color: '#333',
+  },
+  button: {
+    backgroundColor: '#1E90FF',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

@@ -1,5 +1,3 @@
-// pages/TaskListScreen.tsx
-
 import React, { useState } from 'react';
 import {
   View,
@@ -30,10 +28,6 @@ type Props = {
 const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskIndex, setSelectedTaskIndex] = useState<number | null>(null);
-
-  /**
-   * Confirms the deletion of the selected task.
-   */
   const handleDeleteConfirm = () => {
     if (selectedTaskIndex !== null) {
       deleteTask(selectedTaskIndex);
@@ -42,13 +36,7 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
     setSelectedTaskIndex(null);
   };
 
-  /**
-   * Renders each task item in the FlatList.
-   */
   const renderItem = ({ item, index }: { item: Task; index: number }) => {
-    /**
-     * Swipeable right action component.
-     */
     const renderRightActions = () => (
       <View style={styles.deleteAction}>
         <Text style={styles.deleteText}>Izbriši</Text>
@@ -76,10 +64,8 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
 
   return (
     <View style={styles.container}>
-      {/* Sign Out Button */}
       <Button title="Odjava" onPress={() => auth().signOut()} />
 
-      {/* List of Tasks */}
       <FlatList
         data={tasks}
         keyExtractor={(item, index) => item.id ?? index.toString()}
@@ -87,10 +73,7 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
         ListEmptyComponent={<Text>Ni vnesenih opravil.</Text>}
       />
 
-      {/* Add Task Button */}
       <Button title="Dodaj opravilo" onPress={() => navigation.navigate('AddTask')} />
-
-      {/* Delete Confirmation Modal */}
       <Modal
         transparent
         visible={modalVisible}

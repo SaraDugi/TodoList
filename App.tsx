@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
@@ -35,18 +34,14 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  // Listen for authentication state changes
   useEffect(() => {
     const unsubscribeAuth = auth().onAuthStateChanged((currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
-
-    // Cleanup when unmounting
     return unsubscribeAuth;
   }, []);
 
-  // Listen for changes to the user's tasks in Firestore
   useEffect(() => {
     let unsubscribeTasks: () => void = () => {};
 
@@ -55,9 +50,7 @@ const App = () => {
         .collection('tasks')
         .where('userId', '==', user.uid)
         .onSnapshot(
-          // Success callback
           (querySnapshot) => {
-            // Defensive check
             if (!querySnapshot) {
               setTasks([]);
               return;
@@ -72,22 +65,17 @@ const App = () => {
             });
             setTasks(userTasks);
           },
-          // Error callback (e.g., permission errors, network issues)
           (error) => {
             console.error('Error fetching tasks:', error);
             setTasks([]);
           }
         );
     } else {
-      // If user is logged out, clear tasks
       setTasks([]);
     }
-
-    // Cleanup subscription when user changes or component unmounts
     return unsubscribeTasks;
   }, [user]);
 
-  // Function to add a task to Firestore
   const addTask = async (task: Task) => {
     if (!user) return;
     try {
@@ -100,7 +88,6 @@ const App = () => {
     }
   };
 
-  // Function to delete a task from Firestore
   const deleteTask = async (taskId: string) => {
     try {
       await firestore().collection('tasks').doc(taskId).delete();
@@ -109,7 +96,6 @@ const App = () => {
     }
   };
 
-  // Show loading indicator while checking auth state
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loading} />;
   }
@@ -118,7 +104,6 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator id={undefined}>
         {user ? (
-          // Authenticated routes
           <>
             <Stack.Screen name="Home" options={{ headerShown: false }}>
               {(props) => (
