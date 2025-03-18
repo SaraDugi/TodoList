@@ -132,7 +132,6 @@ const App = () => {
             </Stack.Screen>
           </>
         ) : (
-          // Unauthenticated route
           <Stack.Screen
             name="Login"
             component={LoginScreen}
