@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
 const LoginScreen = () => {
@@ -9,15 +17,14 @@ const LoginScreen = () => {
 
   const signInWithEmail = async () => {
     if (!email || !password) {
-      Alert.alert("Napaka", "Prosimo, vnesite e-pošto in geslo.");
+      Alert.alert('Napaka', 'Prosimo, vnesite e-pošto in geslo.');
       return;
     }
-
     try {
       setLoading(true);
       await auth().signInWithEmailAndPassword(email, password);
     } catch (error: any) {
-      Alert.alert("Prijava ni uspela", error.message);
+      Alert.alert('Prijava ni uspela', error.message);
     } finally {
       setLoading(false);
     }
@@ -27,7 +34,6 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <View style={styles.formContainer}>
         <Text style={styles.title}>Prijava</Text>
-        
         <TextInput
           style={styles.input}
           placeholder="E-pošta"
@@ -37,7 +43,6 @@ const LoginScreen = () => {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        
         <TextInput
           style={styles.input}
           placeholder="Geslo"
@@ -46,7 +51,6 @@ const LoginScreen = () => {
           onChangeText={setPassword}
           secureTextEntry
         />
-
         {loading ? (
           <ActivityIndicator size="large" color="#fff" />
         ) : (
@@ -64,7 +68,7 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E90FF', // Modro ozadje
+    backgroundColor: '#1E90FF',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,

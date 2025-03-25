@@ -10,24 +10,23 @@ import {
 } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
-import { RootStackParamList, Task } from '../App';
+import { TasksStackParamList, Task } from '../App';
 
-type TaskListScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Home'
->;
-
-type Props = {
-  navigation: TaskListScreenNavigationProp;
+type TaskListScreenProps = StackScreenProps<TasksStackParamList, 'TaskList'> & {
   tasks: Task[];
   deleteTask: (index: number) => void;
 };
 
-const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
+const TaskListScreen: React.FC<TaskListScreenProps> = ({
+  navigation,
+  tasks,
+  deleteTask,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTaskIndex, setSelectedTaskIndex] = useState<number | null>(null);
+
   const handleDeleteConfirm = () => {
     if (selectedTaskIndex !== null) {
       deleteTask(selectedTaskIndex);
@@ -65,15 +64,16 @@ const TaskListScreen: React.FC<Props> = ({ navigation, tasks, deleteTask }) => {
   return (
     <View style={styles.container}>
       <Button title="Odjava" onPress={() => auth().signOut()} />
-
       <FlatList
         data={tasks}
-        keyExtractor={(item, index) => item.id ?? index.toString()}
+        keyExtractor={(item, idx) => item.id ?? idx.toString()}
         renderItem={renderItem}
         ListEmptyComponent={<Text>Ni vnesenih opravil.</Text>}
       />
-
-      <Button title="Dodaj opravilo" onPress={() => navigation.navigate('AddTask')} />
+      <Button
+        title="Dodaj opravilo"
+        onPress={() => navigation.navigate('AddTask')}
+      />
       <Modal
         transparent
         visible={modalVisible}

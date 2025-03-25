@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList, Task } from '../App';
+import { TasksStackParamList, Task } from '../App';
 
-type AddTaskScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AddTask'>;
+type AddTaskScreenNavigationProp = StackNavigationProp<TasksStackParamList, 'AddTask'>;
 
 type Props = {
   navigation: AddTaskScreenNavigationProp;
@@ -17,6 +17,7 @@ const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
   const [category, setCategory] = useState('Osebno');
   const [deadline, setDeadline] = useState('');
   const [reminderDate, setReminderDate] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
 
   const handleAddTask = () => {
     if (!name || !deadline) {
@@ -24,14 +25,19 @@ const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
       return;
     }
 
+    const combinedReminder = reminderDate
+      ? reminderTime
+        ? `${reminderDate} ${reminderTime}`
+        : reminderDate
+      : undefined;
+
     const newTask: Task = {
       name,
       description,
       category,
       deadline,
-      reminderDate,
+      reminderDate: combinedReminder,
     };
-
     addTask(newTask);
     navigation.goBack();
   };
@@ -80,6 +86,14 @@ const AddTaskScreen: React.FC<Props> = ({ navigation, addTask }) => {
         placeholder="npr. 2025-04-25"
         value={reminderDate}
         onChangeText={setReminderDate}
+      />
+
+      <Text style={styles.label}>Čas opomnika (HH:MM):</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="npr. 14:30"
+        value={reminderTime}
+        onChangeText={setReminderTime}
       />
 
       <Button title="Dodaj opravilo" onPress={handleAddTask} />
